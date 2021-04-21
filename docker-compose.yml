@@ -1,0 +1,55 @@
+version: '3.1'
+
+services:
+
+  wordpress:
+    image: wordpress
+    restart: always
+    container_name: filter-catalog
+    ports:
+      - 8822:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: filter
+    volumes:
+      - ./codes/v1.0.0/:/var/www/html/wp-content/plugins/filterCatalog/
+      - filter:/var/www/html
+    depends_on:
+        - db
+    networks:
+      - project_filter
+  db:
+    image: mysql:5.7
+    container_name: mysql_filter
+    restart: always
+    environment:
+      MYSQL_DATABASE: filter
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db_filter:/var/lib/mysql
+    networks:
+      - project_filter
+      
+  phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: filter_phpmyadmin
+        restart: always
+        ports: 
+          - 8928:80
+        environment:
+          PMA_HOST: db
+        depends_on:
+          - db
+        networks:
+          - project_filter
+networks:
+  project_filter:
+    driver: bridge
+
+volumes:
+  filter:
+  db_filter:
